@@ -3,7 +3,7 @@
 require_relative 'lib/gr/plot/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'ruby-gr-plot'
+  spec.name          = 'gr-plot'
   spec.version       = GR::Plot::VERSION
   spec.authors       = 'kojix2'
   spec.email         = '2xijok@gmail.com'
