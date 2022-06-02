@@ -14,3 +14,9 @@ gem install gr-plot
 
 * [wiki](https://github.com/red-data-tools/GR.rb/wiki/Plotting-functions).
 * [doc](https://red-data-tools.github.io/gr-plot/)
+
+
+## Contributing
+
+* Pull requests are welcome.
+* Please post issues to GR.rb. 
