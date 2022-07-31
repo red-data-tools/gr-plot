@@ -31,19 +31,96 @@ module GR
     # https://github.com/SciRuby/rubyplot
 
     # Plot kinds conform to GR.jl
-    PLOT_KIND = %i[line step scatter stem hist contour contourf hexbin heatmap
-                   nonuniformheatmap wireframe surface plot3 scatter3 imshow
-                   isosurface polar polarhist polarheatmap nonuniformpolarheatmap
-                   trisurf tricont shade volume].freeze
+    PLOT_KIND = %i[
+      line
+      step
+      scatter
+      stem
+      hist
+      contour
+      contourf
+      hexbin
+      heatmap
+      nonuniformheatmap
+      wireframe
+      surface
+      plot3
+      scatter3
+      imshow
+      isosurface
+      polar
+      polarhist
+      polarheatmap
+      nonuniformpolarheatmap
+      trisurf
+      tricont
+      shade
+      volume
+    ].freeze
 
     # Keyword options conform to GR.jl.
-    KW_ARGS = %i[accelerate algorithm alpha ax backgroundcolor barwidth baseline
-                 clabels clear clim color colormap crange figsize font grid
-                 horizontal isovalue kind label labels levels linewidth location
-                 nbins ratio rotation scale size spec subplot tilt title update
-                 xaxis xflip xform xlabel xlim xlog xrange xticks yaxis yflip
-                 ylabel ylim ylog zflip yrange yticks viewport vp where window
-                 zaxis zlabel zlim zlog zrange zticks].freeze
+    KW_ARGS = %i[
+      accelerate
+      algorithm
+      alpha
+      ax
+      backgroundcolor
+      barwidth
+      baseline
+      clabels
+      clear
+      clim
+      color
+      colormap
+      crange
+      figsize
+      font
+      grid
+      horizontal
+      isovalue
+      kind
+      label
+      labels
+      levels
+      linewidth
+      location
+      nbins
+      ratio
+      rotation
+      scale
+      size
+      spec
+      subplot
+      tilt
+      title
+      update
+      viewport
+      vp
+      where
+      window
+      xaxis
+      xflip
+      xform
+      xlabel
+      xlim
+      xlog
+      xrange
+      xticks
+      yaxis
+      yflip
+      ylabel
+      ylim
+      ylog
+      yrange
+      yticks
+      zaxis
+      zflip
+      zlabel
+      zlim
+      zlog
+      zrange
+      zticks
+    ].freeze
 
     FONTS = {
       times_roman: 101,
