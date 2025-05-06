@@ -10,9 +10,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        gr: [ 'system' ]
-        os: [ 'ubuntu' ]
-        ruby: [ '2.7', '3.0', '3.1' ]
+        gr: ["system"]
+        os: ["ubuntu"]
+        ruby: ["3.2", "3.3", "3.4"]
+        ubuntu_version: ["24.04"]
     runs-on: ${{ matrix.os }}-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,21 +21,19 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
       - name: Setup OBS binary (ubuntu)
         if: ${{ matrix.gr == 'system' && matrix.os == 'ubuntu' }}
         run: |
-          echo 'deb http://download.opensuse.org/repositories/science:/gr-framework/xUbuntu_20.04/ /' |
+          echo 'deb http://download.opensuse.org/repositories/science:/gr-framework/xUbuntu_${{ matrix.ubuntu_version }}/ /' |
             sudo tee /etc/apt/sources.list.d/science:gr-framework.list
-          curl -fsSL https://download.opensuse.org/repositories/science:gr-framework/xUbuntu_20.04/Release.key |
+          curl -fsSL https://download.opensuse.org/repositories/science:gr-framework/xUbuntu_${{ matrix.ubuntu_version }}/Release.key |
             gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/science_gr-framework.gpg > /dev/null
           sudo apt update -yq && sudo apt upgrade -yq
           sudo apt-get install -y gr
-      - name: Install gems
-        run: |
-          gem install bundler
-          bundle install --jobs 4 --retry 3
       - name: Test
         env:
           QT_QPA_PLATFORM: offscreen
-          GRDIR: /usr/gr
+          LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu
+          PKG_CONFIG_PATH: /usr/gr/lib/pkgconfig/
         run: bundle exec rake test
