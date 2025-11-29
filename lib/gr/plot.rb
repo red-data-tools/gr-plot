@@ -1138,9 +1138,14 @@ module GR
 
         when :volume
           algorithm = kvs[:algorithm] || 0
+          w, h, ratio = GR.inqvpsize
+          GR.setpicturesizeforvolume((w * ratio).round, (h * ratio).round)
           require 'gr3'
           GR3.clear
+          ambient, diffuse, specular, specular_power = GR3.getlightparameters
+          GR3.setlightparameters(0.8, 0.2, 0.1, 10.0)
           dmin, dmax = GR3.volume(z, algorithm)
+          GR3.setlightparameters(ambient, diffuse, specular, specular_power)
           draw_axes(kind, 2)
           kvs[:zrange] = [dmin, dmax]
           colorbar(0.05)
@@ -1572,45 +1577,87 @@ module GR
     end
 
     # (Plot) Draw a heatmap.
+    # (Plot) Draw a heatmap.
     def heatmap(*args)
-      # FIXME
-      args, kv = format_xyzc(*args)
-      _x, _y, z = args
-      ysize, xsize = z.shape
-      z = z.reshape(xsize, ysize)
+      kv = args.last.is_a?(Hash) ? args.pop : {}
+      if args.length == 1
+        z = args[0]
+        z = Numo::DFloat.cast(z) if z.is_a?(Array)
+        ysize, xsize = z.shape
+        z = z.reshape(xsize, ysize)
+        x = (1..xsize).to_a
+        y = (1..ysize).to_a
+      elsif args.length == 3
+        x, y, z = args
+        z = Numo::DFloat.cast(z) if z.is_a?(Array)
+      else
+        raise ArgumentError
+      end
       create_plot(:heatmap, kv) do |plt|
-        plt.kvs[:xlim] ||= [0.5, xsize + 0.5]
-        plt.kvs[:ylim] ||= [0.5, ysize + 0.5]
-        plt.args = [[(1..xsize).to_a, (1..ysize).to_a, z, nil, '']]
+        plt.args = [[x, y, z, nil, '']]
+      end
+    end
+
+    # (Plot) Draw a nonuniformheatmap.
+    def nonuniformheatmap(*args)
+      kv = args.last.is_a?(Hash) ? args.pop : {}
+      if args.length == 1
+        z = args[0]
+        z = Numo::DFloat.cast(z) if z.is_a?(Array)
+        ysize, xsize = z.shape
+        z = z.reshape(xsize, ysize)
+        x = (1..xsize).to_a
+        y = (1..ysize).to_a
+      elsif args.length == 3
+        x, y, z = args
+        z = Numo::DFloat.cast(z) if z.is_a?(Array)
+      else
+        raise ArgumentError
+      end
+      create_plot(:nonuniformheatmap, kv) do |plt|
+        plt.args = [[x, y, z, nil, '']]
       end
     end
 
     # (Plot) Draw a polarheatmap.
     def polarheatmap(*args)
-      d = args.shift
-      # FIXME
-      z = Numo::DFloat.cast(d)
-      raise 'expected 2-D array' unless z.ndim == 2
-
-      create_plot(:polarheatmap, z, *args) do |plt|
-        width, height = z.shape
-        plt.kvs[:xlim] ||= [0.5, width + 0.5]
-        plt.kvs[:ylim] ||= [0.5, height + 0.5]
-        plt.args = [[(1..width).to_a, (1..height).to_a, z, nil, '']]
+      kv = args.last.is_a?(Hash) ? args.pop : {}
+      if args.length == 1
+        z = args[0]
+        z = Numo::DFloat.cast(z) if z.is_a?(Array)
+        ysize, xsize = z.shape
+        z = z.reshape(xsize, ysize)
+        x = (1..xsize).to_a
+        y = (1..ysize).to_a
+      elsif args.length == 3
+        x, y, z = args
+        z = Numo::DFloat.cast(z) if z.is_a?(Array)
+      else
+        raise ArgumentError
+      end
+      create_plot(:polarheatmap, kv) do |plt|
+        plt.args = [[x, y, z, nil, '']]
       end
     end
 
     # (Plot) Draw a nonuniformpolarheatmap.
     def nonuniformpolarheatmap(*args)
-      # FIXME
-      args, kv = format_xyzc(*args)
-      _x, _y, z = args
-      ysize, xsize = z.shape
-      z = z.reshape(xsize, ysize)
+      kv = args.last.is_a?(Hash) ? args.pop : {}
+      if args.length == 1
+        z = args[0]
+        z = Numo::DFloat.cast(z) if z.is_a?(Array)
+        ysize, xsize = z.shape
+        z = z.reshape(xsize, ysize)
+        x = (1..xsize).to_a
+        y = (1..ysize).to_a
+      elsif args.length == 3
+        x, y, z = args
+        z = Numo::DFloat.cast(z) if z.is_a?(Array)
+      else
+        raise ArgumentError
+      end
       create_plot(:nonuniformpolarheatmap, kv) do |plt|
-        plt.kvs[:xlim] ||= [0.5, xsize + 0.5]
-        plt.kvs[:ylim] ||= [0.5, ysize + 0.5]
-        plt.args = [[(1..xsize).to_a, (1..ysize).to_a, z, nil, '']]
+        plt.args = [[x, y, z, nil, '']]
       end
     end
 
@@ -1711,15 +1758,10 @@ module GR
 
     # (Plot) Draw a histogram.
     def histogram(series, kv = {})
-      horizontal = kv.delete(:horizontal)
       create_plot(:hist, series, kv) do |plt|
         nbins = plt.kvs[:nbins] || 0
         x, y = hist(series, nbins)
-        plt.args = if horizontal
-                     [[y, x, nil, nil, '']]
-                   else
-                     [[x, y, nil, nil, '']]
-                   end
+        plt.args = [[x, y, nil, nil, '']]
       end
     end
 
