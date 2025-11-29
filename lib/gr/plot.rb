@@ -502,8 +502,9 @@ module GR
       end
     end
 
-    def draw_polar_axes
+    def draw_polar_axes(pass = 1)
       viewport = kvs[:viewport]
+      vp = kvs[:vp]
       diag = Math.sqrt((viewport[1] - viewport[0])**2 + (viewport[3] - viewport[2])**2)
       charheight = [0.018 * diag, 0.012].max
 
@@ -516,28 +517,67 @@ module GR
       GR.setlinetype(GR::LINETYPE_SOLID)
 
       tick = auto_tick(rmin, rmax)
-      n = ((rmax - rmin) / tick + 0.5).round
-      (n + 1).times do |i|
-        r = i.to_f / n
-        if i.even?
+      n = ((rmax - rmin) / tick).truncate
+      if n <= 4
+        tick /= 2.0
+        n *= 2
+      end
+
+      if pass == 1
+        GR.selntran(1)
+        (n + 1).times do |i|
+          r = i.to_f * tick / (rmax - rmin)
+          if r > 0 && r < 1
+            if i.even?
+              GR.setlinecolorind(88)
+              GR.drawarc(-r, r, -r, r, 0, 360)
+            else
+              GR.setlinecolorind(90)
+              GR.drawarc(-r, r, -r, r, 0, 360)
+            end
+          end
+        end
+        GR.setclip(0)
+        GR.setlinecolorind(88)
+        GR.drawarc(-1, 1, -1, 1, 0, 360)
+
+        GR.setclip(1)
+        sign = (kvs[:theta_direction] || 1) > 0 ? 1 : -1
+        offs = THETA_ZERO_LOCATION[kvs[:theta_zero_location] || 'E']
+        0.step(by: 45, to: 315) do |alpha|
+          sinf = Math.sin((alpha * sign) * Math::PI / 180 + offs)
+          cosf = Math.cos((alpha * sign) * Math::PI / 180 + offs)
           GR.setlinecolorind(88)
-          GR.drawarc(-r, r, -r, r, 0, 359) if i > 0
-          GR.settextalign(GR::TEXT_HALIGN_LEFT, GR::TEXT_VALIGN_HALF)
-          x, y = GR.wctondc(0.05, r)
-          GR.text(x, y, (rmin + i * tick).to_s) # FIXME: round. significant digits.
-        else
-          GR.setlinecolorind(90)
-          GR.drawarc(-r, r, -r, r, 0, 359)
+          GR.polyline([cosf, 0], [sinf, 0])
+          GR.settextalign(GR::TEXT_HALIGN_CENTER, GR::TEXT_VALIGN_HALF)
+          x, y = GR.wctondc(1.1 * cosf, 1.1 * sinf)
+          GR.textext(x, y, "#{alpha}^o")
+        end
+
+        if kvs.has_key?(:title)
+          GR.settextalign(GR::TEXT_HALIGN_CENTER, GR::TEXT_VALIGN_TOP)
+          text(0.5 * (viewport[0] + viewport[1]), vp[3] - 0.02, kvs[:title].to_s)
         end
       end
-      0.step(by: 45, to: 315) do |alpha|
-        sinf = Math.sin(alpha * Math::PI / 180)
-        cosf = Math.cos(alpha * Math::PI / 180)
-        GR.polyline([cosf, 0], [sinf, 0])
-        GR.settextalign(GR::TEXT_HALIGN_CENTER, GR::TEXT_VALIGN_HALF)
-        x, y = GR.wctondc(1.1 * cosf, 1.1 * sinf)
-        GR.textext(x, y, "#{alpha}^o")
+
+      if pass == 2
+        start = (rmin / tick).floor.truncate
+        (n + 1).times do |i|
+          j = start + i
+          next unless j * tick >= rmin
+
+          r = i.to_f * tick / (rmax - rmin)
+          next unless i.even?
+
+          GR.settextalign(GR::TEXT_HALIGN_LEFT, GR::TEXT_VALIGN_HALF)
+          x, y = GR.wctondc(0.05, r)
+          # fmt = GR.getformat(start, rmin, rmax, tick, 2)
+          # s = GR.ftoa(j * tick, fmt)
+          s = (j * tick).to_s # Fallback
+          GR.text(x, y, s)
+        end
       end
+
       GR.restorestate
     end
 
