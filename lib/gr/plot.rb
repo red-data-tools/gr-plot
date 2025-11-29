@@ -282,13 +282,13 @@ module GR
         GR.restorestate
       end
 
-      if %i[polar polarhist polarheatmap nonuniformpolarheatmap].include? kind
-        xmin, xmax, ymin, ymax = viewport
-        xcenter = 0.5 * (xmin + xmax)
-        ycenter = 0.5 * (ymin + ymax)
-        r = 0.5 * [xmax - xmin, ymax - ymin].min
-        GR.setviewport(xcenter - r, xcenter + r, ycenter - r, ycenter + r)
-      end
+      return unless %i[polar polarhist polarheatmap nonuniformpolarheatmap].include? kind
+
+      xmin, xmax, ymin, ymax = viewport
+      xcenter = 0.5 * (xmin + xmax)
+      ycenter = 0.5 * (ymin + ymax)
+      r = 0.5 * [xmax - xmin, ymax - ymin].min
+      GR.setviewport(xcenter - r, xcenter + r, ycenter - r, ycenter + r)
     end
 
     def set_window(kind)
@@ -957,12 +957,11 @@ module GR
         when :heatmap, :nonuniformheatmap
           case z
           when Array
-            if z.all? { |zi| zi.size = z[0].size }
-              w = z.size
-              h = z[0].size
-            else
-              raise
-            end
+            raise unless z.all? { |zi| zi.size = z[0].size }
+
+            w = z.size
+            h = z[0].size
+
           when ->(obj) { narray?(obj) }
             w, h = z.shape
           else
@@ -972,11 +971,11 @@ module GR
           cmin, cmax = kvs[:crange]
           levels = kvs[:levels] || 256
           data = z.flatten.to_a.map { |i| normalize_color(i, cmin, cmax) } # NArray -> Array
-          if kind == :heatmap
+          if kind == :heatmap && !ENV['GR_SCALE_FACTOR']
             rgba = data.map { |v| to_rgba(v, cmap) }
             GR.drawimage(0.5, w + 0.5, h + 0.5, 0.5, w, h, rgba)
           else
-            colors = data.map { |i| (1000 + i * 255).round }
+            colors = data.map { |i| (i.nan? ? 1256 : 1000 + i * 255).round }
             GR.nonuniformcellarray(x, y, w, h, colors)
           end
           colorbar(0, levels)
@@ -1065,8 +1064,7 @@ module GR
 
         when :shade
           xform = kvs[:xform] || 5
-          if x.to_a.include? Float::NAN # FIXME: Ruby is different from Julia?
-            # How to check NArray?
+          if (x.respond_to?(:isnan) && x.isnan.any?) || (x.is_a?(Array) && x.include?(Float::NAN))
             GR.shadelines(x, y, xform: xform)
           else
             GR.shadepoints(x, y, xform: xform)
@@ -1088,13 +1086,13 @@ module GR
 
       draw_legend if %i[line step scatter stem].include?(kind) && kvs.has_key?(:labels)
 
-      if kvs[:update]
-        GR.updatews
-        # if GR.isinline()
-        #  restore_context()
-        #  return GR.show()
-        # end
-      end
+      return unless kvs[:update]
+
+      GR.updatews
+      # if GR.isinline()
+      #  restore_context()
+      #  return GR.show()
+      # end
 
       # flag && restore_context()
     end
@@ -1333,9 +1331,9 @@ module GR
       zmin, zmax = fix_minmax(zmin, zmax)
 
       # kvs[:xlim], kvs[:ylim], kvs[:zlim] is supposed to be Array or Range
-      kvs[:xrange] = [(kvs[:xlim]&.first || xmin), (kvs[:xlim]&.last || xmax)]
-      kvs[:yrange] = [(kvs[:ylim]&.first || ymin), (kvs[:ylim]&.last || ymax)]
-      kvs[:zrange] = [(kvs[:zlim]&.first || zmin), (kvs[:zlim]&.last || zmax)]
+      kvs[:xrange] = [kvs[:xlim]&.first || xmin, kvs[:xlim]&.last || xmax]
+      kvs[:yrange] = [kvs[:ylim]&.first || ymin, kvs[:ylim]&.last || ymax]
+      kvs[:zrange] = [kvs[:zlim]&.first || zmin, kvs[:zlim]&.last || zmax]
 
       if kvs.has_key?(:clim)
         c0, c1 = kvs[:clim]
