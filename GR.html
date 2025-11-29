@@ -225,7 +225,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#barplot-class_method" title="barplot (class method)">.<strong>barplot</strong>(labels, heights, kv = {})  &#x21d2; Object </a>
+      <a href="#barplot-class_method" title="barplot (class method)">.<strong>barplot</strong>(*args)  &#x21d2; Object </a>
     
 
     
@@ -679,6 +679,30 @@
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#stairs-class_method" title="stairs (class method)">.<strong>stairs</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>(Plot) Draw one or more step or staircase plots.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#stem-class_method" title="stem (class method)">.<strong>stem</strong>(*args)  &#x21d2; Object </a>
     
 
@@ -890,10 +914,10 @@
       <pre class="lines">
 
 
-1551</pre>
+1617</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1551</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1617</span>
 
 <span class='kw'>alias</span> <span class='id identifier rubyid__contour_'>_contour_</span> <span class='id identifier rubyid_contour'>contour</span></pre>
     </td>
@@ -916,10 +940,10 @@
       <pre class="lines">
 
 
-1557</pre>
+1623</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1557</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1623</span>
 
 <span class='kw'>alias</span> <span class='id identifier rubyid__contourf_'>_contourf_</span> <span class='id identifier rubyid_contourf'>contourf</span></pre>
     </td>
@@ -942,10 +966,10 @@
       <pre class="lines">
 
 
-1563</pre>
+1629</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1563</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1629</span>
 
 <span class='kw'>alias</span> <span class='id identifier rubyid__hexbin_'>_hexbin_</span> <span class='id identifier rubyid_hexbin'>hexbin</span></pre>
     </td>
@@ -968,10 +992,10 @@
       <pre class="lines">
 
 
-1605</pre>
+1671</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1605</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1671</span>
 
 <span class='kw'>alias</span> <span class='id identifier rubyid__shade_'>_shade_</span> <span class='id identifier rubyid_shade'>shade</span></pre>
     </td>
@@ -1005,10 +1029,10 @@
       <pre class="lines">
 
 
-1580</pre>
+1646</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1580</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1646</span>
 
 <span class='kw'>alias</span> <span class='id identifier rubyid__surface_'>_surface_</span> <span class='id identifier rubyid_surface'>surface</span></pre>
     </td>
@@ -1019,7 +1043,7 @@
       <div class="method_details ">
   <h3 class="signature " id="barplot-class_method">
   
-    .<strong>barplot</strong>(labels, heights, kv = {})  &#x21d2; <tt>Object</tt> 
+    .<strong>barplot</strong>(*args)  &#x21d2; <tt>Object</tt> 
   
 
   
@@ -1042,30 +1066,52 @@
       <pre class="lines">
 
 
-1619
-1620
-1621
-1622
-1623
-1624
-1625
-1626
-1627
-1628
-1629
-1630
-1631
-1632
-1633</pre>
+1685
+1686
+1687
+1688
+1689
+1690
+1691
+1692
+1693
+1694
+1695
+1696
+1697
+1698
+1699
+1700
+1701
+1702
+1703
+1704
+1705
+1706
+1707
+1708
+1709
+1710</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1619</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1685</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_barplot'>barplot</span><span class='lparen'>(</span><span class='id identifier rubyid_labels'>labels</span><span class='comma'>,</span> <span class='id identifier rubyid_heights'>heights</span><span class='comma'>,</span> <span class='id identifier rubyid_kv'>kv</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_barplot'>barplot</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_kv'>kv</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Hash</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_pop'>pop</span> <span class='op'>:</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>2</span>
+    <span class='id identifier rubyid_labels'>labels</span><span class='comma'>,</span> <span class='id identifier rubyid_heights'>heights</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>1</span>
+    <span class='id identifier rubyid_heights'>heights</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_labels'>labels</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='int'>1</span><span class='op'>..</span><span class='id identifier rubyid_heights'>heights</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_s</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span>
+  <span class='kw'>end</span>
+
   <span class='id identifier rubyid_labels'>labels</span> <span class='op'>=</span> <span class='id identifier rubyid_labels'>labels</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_s</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_wc'>wc</span><span class='comma'>,</span> <span class='id identifier rubyid_hc'>hc</span> <span class='op'>=</span> <span class='id identifier rubyid_barcoordinates'>barcoordinates</span><span class='lparen'>(</span><span class='id identifier rubyid_heights'>heights</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_wc'>wc</span><span class='comma'>,</span> <span class='id identifier rubyid_hc'>hc</span> <span class='op'>=</span> <span class='id identifier rubyid_barcoordinates'>barcoordinates</span><span class='lparen'>(</span><span class='id identifier rubyid_heights'>heights</span><span class='comma'>,</span> <span class='id identifier rubyid_kv'>kv</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_horizontal'>horizontal</span> <span class='op'>=</span> <span class='id identifier rubyid_kv'>kv</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:horizontal</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_create_plot'>create_plot</span><span class='lparen'>(</span><span class='symbol'>:bar</span><span class='comma'>,</span> <span class='id identifier rubyid_labels'>labels</span><span class='comma'>,</span> <span class='id identifier rubyid_heights'>heights</span><span class='comma'>,</span> <span class='id identifier rubyid_kv'>kv</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_plt'>plt</span><span class='op'>|</span>
-    <span class='kw'>if</span> <span class='id identifier rubyid_kv'>kv</span><span class='lbracket'>[</span><span class='symbol'>:horizontal</span><span class='rbracket'>]</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_horizontal'>horizontal</span>
       <span class='id identifier rubyid_plt'>plt</span><span class='period'>.</span><span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='id identifier rubyid_hc'>hc</span><span class='comma'>,</span> <span class='id identifier rubyid_wc'>wc</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span>
       <span class='id identifier rubyid_plt'>plt</span><span class='period'>.</span><span class='id identifier rubyid_kvs'>kvs</span><span class='lbracket'>[</span><span class='symbol'>:yticks</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='int'>1</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span>
       <span class='id identifier rubyid_plt'>plt</span><span class='period'>.</span><span class='id identifier rubyid_kvs'>kvs</span><span class='lbracket'>[</span><span class='symbol'>:yticklabels</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_labels'>labels</span>
@@ -1107,12 +1153,12 @@
       <pre class="lines">
 
 
-1553
-1554
-1555</pre>
+1619
+1620
+1621</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1553</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1619</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_contour'>contour</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_create_plot'>create_plot</span><span class='lparen'>(</span><span class='symbol'>:contour</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_format_xyzc'>format_xyzc</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span><span class='rparen'>)</span>
@@ -1148,12 +1194,12 @@
       <pre class="lines">
 
 
-1559
-1560
-1561</pre>
+1625
+1626
+1627</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1559</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1625</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_contourf'>contourf</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_create_plot'>create_plot</span><span class='lparen'>(</span><span class='symbol'>:contourf</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_format_xyzc'>format_xyzc</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span><span class='rparen'>)</span>
@@ -1189,21 +1235,21 @@
       <pre class="lines">
 
 
-1509
-1510
-1511
-1512
-1513
-1514
-1515
-1516
-1517
-1518
-1519
-1520</pre>
+1575
+1576
+1577
+1578
+1579
+1580
+1581
+1582
+1583
+1584
+1585
+1586</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1509</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1575</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_heatmap'>heatmap</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='comment'># FIXME
@@ -1248,12 +1294,12 @@
       <pre class="lines">
 
 
-1565
-1566
-1567</pre>
+1631
+1632
+1633</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1565</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1631</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_hexbin'>hexbin</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_create_plot'>create_plot</span><span class='lparen'>(</span><span class='symbol'>:hexbin</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
@@ -1289,26 +1335,28 @@
       <pre class="lines">
 
 
-1636
-1637
-1638
-1639
-1640
-1641
-1642
-1643
-1644
-1645
-1646</pre>
+1713
+1714
+1715
+1716
+1717
+1718
+1719
+1720
+1721
+1722
+1723
+1724</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1636</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1713</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_histogram'>histogram</span><span class='lparen'>(</span><span class='id identifier rubyid_series'>series</span><span class='comma'>,</span> <span class='id identifier rubyid_kv'>kv</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_horizontal'>horizontal</span> <span class='op'>=</span> <span class='id identifier rubyid_kv'>kv</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:horizontal</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_create_plot'>create_plot</span><span class='lparen'>(</span><span class='symbol'>:hist</span><span class='comma'>,</span> <span class='id identifier rubyid_series'>series</span><span class='comma'>,</span> <span class='id identifier rubyid_kv'>kv</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_plt'>plt</span><span class='op'>|</span>
     <span class='id identifier rubyid_nbins'>nbins</span> <span class='op'>=</span> <span class='id identifier rubyid_plt'>plt</span><span class='period'>.</span><span class='id identifier rubyid_kvs'>kvs</span><span class='lbracket'>[</span><span class='symbol'>:nbins</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>0</span>
     <span class='id identifier rubyid_x'>x</span><span class='comma'>,</span> <span class='id identifier rubyid_y'>y</span> <span class='op'>=</span> <span class='id identifier rubyid_hist'>hist</span><span class='lparen'>(</span><span class='id identifier rubyid_series'>series</span><span class='comma'>,</span> <span class='id identifier rubyid_nbins'>nbins</span><span class='rparen'>)</span>
-    <span class='id identifier rubyid_plt'>plt</span><span class='period'>.</span><span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='kw'>if</span> <span class='id identifier rubyid_kv'>kv</span><span class='lbracket'>[</span><span class='symbol'>:horizontal</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_plt'>plt</span><span class='period'>.</span><span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='kw'>if</span> <span class='id identifier rubyid_horizontal'>horizontal</span>
                  <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='id identifier rubyid_y'>y</span><span class='comma'>,</span> <span class='id identifier rubyid_x'>x</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span>
                <span class='kw'>else</span>
                  <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='id identifier rubyid_x'>x</span><span class='comma'>,</span> <span class='id identifier rubyid_y'>y</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span>
@@ -1335,13 +1383,13 @@
       <pre class="lines">
 
 
-1664
-1665
-1666
-1667</pre>
+1742
+1743
+1744
+1745</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1664</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1742</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_hold'>hold</span><span class='lparen'>(</span><span class='id identifier rubyid_flag'>flag</span> <span class='op'>=</span> <span class='kw'>true</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_plt'>plt</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="" title="GR (module)">GR</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="GR/Plot.html" title="GR::Plot (class)">Plot</a></span></span><span class='period'>.</span><span class='id identifier rubyid_last_plot'><span class='object_link'><a href="GR/Plot.html#last_plot-class_method" title="GR::Plot.last_plot (method)">last_plot</a></span></span>
@@ -1378,15 +1426,15 @@
       <pre class="lines">
 
 
-1649
-1650
-1651
-1652
-1653
-1654</pre>
+1727
+1728
+1729
+1730
+1731
+1732</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1649</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1727</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_imshow'>imshow</span><span class='lparen'>(</span><span class='id identifier rubyid_img'>img</span><span class='comma'>,</span> <span class='id identifier rubyid_kv'>kv</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_img'>img</span> <span class='op'>=</span> <span class='const'>Numo</span><span class='op'>::</span><span class='const'>DFloat</span><span class='period'>.</span><span class='id identifier rubyid_cast'>cast</span><span class='lparen'>(</span><span class='id identifier rubyid_img'>img</span><span class='rparen'>)</span> <span class='comment'># Umm...
@@ -1425,15 +1473,15 @@
       <pre class="lines">
 
 
-1657
-1658
-1659
-1660
-1661
-1662</pre>
+1735
+1736
+1737
+1738
+1739
+1740</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1657</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1735</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_isosurface'>isosurface</span><span class='lparen'>(</span><span class='id identifier rubyid_v'>v</span><span class='comma'>,</span> <span class='id identifier rubyid_kv'>kv</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_v'>v</span> <span class='op'>=</span> <span class='const'>Numo</span><span class='op'>::</span><span class='const'>DFloat</span><span class='period'>.</span><span class='id identifier rubyid_cast'>cast</span><span class='lparen'>(</span><span class='id identifier rubyid_v'>v</span><span class='rparen'>)</span> <span class='comment'># Umm...
@@ -1472,21 +1520,21 @@
       <pre class="lines">
 
 
-1538
-1539
-1540
-1541
-1542
-1543
-1544
-1545
-1546
-1547
-1548
-1549</pre>
+1604
+1605
+1606
+1607
+1608
+1609
+1610
+1611
+1612
+1613
+1614
+1615</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1538</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1604</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_nonuniformpolarheatmap'>nonuniformpolarheatmap</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='comment'># FIXME
@@ -1531,12 +1579,12 @@
       <pre class="lines">
 
 
-1479
-1480
-1481</pre>
+1540
+1541
+1542</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1479</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1540</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_plot'>plot</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_create_plot'>create_plot</span><span class='lparen'>(</span><span class='symbol'>:line</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
@@ -1572,12 +1620,12 @@
       <pre class="lines">
 
 
-1596
-1597
-1598</pre>
+1662
+1663
+1664</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1596</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1662</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_plot3'>plot3</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_create_plot'>create_plot</span><span class='lparen'>(</span><span class='symbol'>:plot3</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
@@ -1613,12 +1661,12 @@
       <pre class="lines">
 
 
-1586
-1587
-1588</pre>
+1652
+1653
+1654</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1586</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1652</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_polar'>polar</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_create_plot'>create_plot</span><span class='lparen'>(</span><span class='symbol'>:polar</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
@@ -1654,22 +1702,22 @@
       <pre class="lines">
 
 
-1523
-1524
-1525
-1526
-1527
-1528
-1529
-1530
-1531
-1532
-1533
-1534
-1535</pre>
+1589
+1590
+1591
+1592
+1593
+1594
+1595
+1596
+1597
+1598
+1599
+1600
+1601</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1523</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1589</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_polarheatmap'>polarheatmap</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_d'>d</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span>
@@ -1715,17 +1763,17 @@
       <pre class="lines">
 
 
-1499
-1500
-1501
-1502
-1503
-1504
-1505
-1506</pre>
+1565
+1566
+1567
+1568
+1569
+1570
+1571
+1572</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1499</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1565</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_polarhistogram'>polarhistogram</span><span class='lparen'>(</span><span class='id identifier rubyid_x'>x</span><span class='comma'>,</span> <span class='id identifier rubyid_kv'>kv</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_plt'>plt</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="" title="GR (module)">GR</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="GR/Plot.html" title="GR::Plot (class)">Plot</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="GR/Plot.html#initialize-instance_method" title="GR::Plot#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_x'>x</span><span class='comma'>,</span> <span class='id identifier rubyid_kv'>kv</span><span class='rparen'>)</span>
@@ -1766,16 +1814,16 @@
       <pre class="lines">
 
 
-1693
-1694
-1695
-1696
-1697
-1698
-1699</pre>
+1771
+1772
+1773
+1774
+1775
+1776
+1777</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1693</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1771</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_savefig'>savefig</span><span class='lparen'>(</span><span class='id identifier rubyid_filename'>filename</span><span class='comma'>,</span> <span class='id identifier rubyid_kv'>kv</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='const'><span class='object_link'><a href="" title="GR (module)">GR</a></span></span><span class='period'>.</span><span class='id identifier rubyid_beginprint'>beginprint</span><span class='lparen'>(</span><span class='id identifier rubyid_filename'>filename</span><span class='rparen'>)</span>
@@ -1815,12 +1863,12 @@
       <pre class="lines">
 
 
-1489
-1490
-1491</pre>
+1555
+1556
+1557</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1489</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1555</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_scatter'>scatter</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_create_plot'>create_plot</span><span class='lparen'>(</span><span class='symbol'>:scatter</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
@@ -1856,12 +1904,12 @@
       <pre class="lines">
 
 
-1601
-1602
-1603</pre>
+1667
+1668
+1669</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1601</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1667</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_scatter3'>scatter3</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_create_plot'>create_plot</span><span class='lparen'>(</span><span class='symbol'>:scatter3</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
@@ -1897,15 +1945,56 @@
       <pre class="lines">
 
 
-1607
-1608
-1609</pre>
+1673
+1674
+1675</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1607</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1673</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_shade'>shade</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_create_plot'>create_plot</span><span class='lparen'>(</span><span class='symbol'>:shade</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stairs-class_method">
+  
+    .<strong>stairs</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>(Plot) Draw one or more step or staircase plots.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+1550
+1551
+1552</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1550</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stairs'>stairs</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_create_plot'>create_plot</span><span class='lparen'>(</span><span class='symbol'>:stairs</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1938,12 +2027,12 @@
       <pre class="lines">
 
 
-1494
-1495
-1496</pre>
+1560
+1561
+1562</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1494</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1560</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_stem'>stem</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_create_plot'>create_plot</span><span class='lparen'>(</span><span class='symbol'>:stem</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
@@ -1979,12 +2068,12 @@
       <pre class="lines">
 
 
-1484
-1485
-1486</pre>
+1545
+1546
+1547</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1484</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1545</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_step'>step</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_create_plot'>create_plot</span><span class='lparen'>(</span><span class='symbol'>:step</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
@@ -2020,30 +2109,30 @@
       <pre class="lines">
 
 
-1670
-1671
-1672
-1673
-1674
-1675
-1676
-1677
-1678
-1679
-1680
-1681
-1682
-1683
-1684
-1685
-1686
-1687
-1688
-1689
-1690</pre>
+1748
+1749
+1750
+1751
+1752
+1753
+1754
+1755
+1756
+1757
+1758
+1759
+1760
+1761
+1762
+1763
+1764
+1765
+1766
+1767
+1768</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1670</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1748</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_subplot'>subplot</span><span class='lparen'>(</span><span class='id identifier rubyid_nr'>nr</span><span class='comma'>,</span> <span class='id identifier rubyid_nc'>nc</span><span class='comma'>,</span> <span class='id identifier rubyid_p'>p</span><span class='comma'>,</span> <span class='id identifier rubyid_kv'>kv</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_xmin'>xmin</span> <span class='op'>=</span> <span class='int'>1</span>
@@ -2086,12 +2175,12 @@
       <pre class="lines">
 
 
-1581
-1582
-1583</pre>
+1647
+1648
+1649</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1581</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1647</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_surface'>surface</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_create_plot'>create_plot</span><span class='lparen'>(</span><span class='symbol'>:surface</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_format_xyzc'>format_xyzc</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span><span class='rparen'>)</span>
@@ -2127,12 +2216,12 @@
       <pre class="lines">
 
 
-1570
-1571
-1572</pre>
+1636
+1637
+1638</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1570</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1636</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_tricont'>tricont</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_create_plot'>create_plot</span><span class='lparen'>(</span><span class='symbol'>:tricont</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_format_xyzc'>format_xyzc</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span><span class='rparen'>)</span>
@@ -2168,12 +2257,12 @@
       <pre class="lines">
 
 
-1591
-1592
-1593</pre>
+1657
+1658
+1659</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1591</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1657</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_trisurf'>trisurf</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_create_plot'>create_plot</span><span class='lparen'>(</span><span class='symbol'>:trisurf</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_format_xyzc'>format_xyzc</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span><span class='rparen'>)</span>
@@ -2209,14 +2298,14 @@
       <pre class="lines">
 
 
-1612
-1613
-1614
-1615
-1616</pre>
+1678
+1679
+1680
+1681
+1682</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1612</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1678</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_volume'>volume</span><span class='lparen'>(</span><span class='id identifier rubyid_v'>v</span><span class='comma'>,</span> <span class='id identifier rubyid_kv'>kv</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_create_plot'>create_plot</span><span class='lparen'>(</span><span class='symbol'>:volume</span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span><span class='comma'>,</span> <span class='id identifier rubyid_kv'>kv</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_plt'>plt</span><span class='op'>|</span>
@@ -2254,12 +2343,12 @@
       <pre class="lines">
 
 
-1575
-1576
-1577</pre>
+1641
+1642
+1643</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1575</span>
+      <pre class="code"><span class="info file"># File 'lib/gr/plot.rb', line 1641</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_wireframe'>wireframe</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_create_plot'>create_plot</span><span class='lparen'>(</span><span class='symbol'>:wireframe</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_format_xyzc'>format_xyzc</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span><span class='rparen'>)</span>
@@ -2274,7 +2363,7 @@
 </div>
 
       <div id="footer">
-  Generated on Sat Nov 29 15:51:53 2025 by
+  Generated on Sat Nov 29 16:12:24 2025 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.37 (ruby-3.1.7).
 </div>
