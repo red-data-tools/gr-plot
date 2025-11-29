@@ -34,8 +34,10 @@ module GR
     PLOT_KIND = %i[
       line
       step
+      stairs
       scatter
       stem
+      bar
       hist
       contour
       contourf
@@ -90,6 +92,7 @@ module GR
       location
       markersize
       nbins
+      panzoom
       ratio
       rotation
       scale
@@ -173,9 +176,26 @@ module GR
       'S' => 1.5 * Math::PI
     }.freeze
 
+    COLORS = [
+      [0xffffff, 0x000000, 0xff0000, 0x00ff00, 0x0000ff, 0x00ffff, 0xffff00, 0xff00ff],
+      [0x282c34, 0xd7dae0, 0xcb4e42, 0x99c27c, 0x85a9fc, 0x5ab6c1, 0xd09a6a, 0xc57bdb],
+      [0xfdf6e3, 0x657b83, 0xdc322f, 0x859900, 0x268bd2, 0x2aa198, 0xb58900, 0xd33682],
+      [0x002b36, 0x839496, 0xdc322f, 0x859900, 0x268bd2, 0x2aa198, 0xb58900, 0xd33682]
+    ].freeze
+
+    DISTINCT_CMAP = [0, 1, 984, 987, 989, 983, 994, 988].freeze
+
     @last_plot = nil
+    @scheme = 0
+
     class << self
-      attr_accessor :last_plot
+      attr_accessor :last_plot, :scheme
+
+      def usecolorscheme(index)
+        raise 'Invalid color scheme' unless index >= 1 && index <= 4
+
+        @scheme = index
+      end
     end
 
     attr_accessor :args, :kvs, :scheme
@@ -198,7 +218,7 @@ module GR
       kvs[:clear]   = true         unless kvs.has_key? :clear
       kvs[:update]  = true         unless kvs.has_key? :update
 
-      @scheme     = 0
+      @scheme     = self.class.scheme
       @background = 0xffffff
       # @handle     = nil           # This variable will be used in gr_meta
 
@@ -763,7 +783,7 @@ module GR
                   GR.inqscale
                 end
       GR.setscale(options & mask)
-      h = 0.5 * (zmax - zmin) / (colors - 1)
+      h = 0 # 0.5 * (zmax - zmin) / (colors - 1)
       GR.setwindow(0, 1, zmin, zmax)
       GR.setclipregion(GR::REGION_RECTANGLE)
       GR.setviewport(viewport[1] + 0.02 + off, viewport[1] + 0.05 + off,
@@ -786,6 +806,14 @@ module GR
       GR.restorestate
     end
 
+    def rgb(color)
+      [
+        ((color >> 16) & 0xff) / 255.0,
+        ((color >> 8) & 0xff) / 255.0,
+        (color & 0xff) / 255.0
+      ]
+    end
+
     def plot_data(_figure = true)
       # GR.init
 
@@ -803,7 +831,23 @@ module GR
       GR.clearws if kvs[:clear]
 
       if scheme != 0
-        # Not yet.
+        8.times do |colorind|
+          color = COLORS[scheme - 1][colorind]
+          r, g, b = rgb(color)
+          GR.setcolorrep(colorind, r, g, b)
+          GR.setcolorrep(DISTINCT_CMAP[colorind], r, g, b) if scheme != 1
+        end
+
+        r, g, b = rgb(COLORS[scheme - 1][0])
+        r2, g2, b2 = rgb(COLORS[scheme - 1][1])
+        rdiff = r2 - r
+        gdiff = g2 - g
+        bdiff = b2 - b
+
+        12.times do |colorind|
+          f = colorind / 11.0
+          GR.setcolorrep(91 - colorind, r + f * rdiff, g + f * gdiff, b + f * bdiff)
+        end
       end
 
       if kvs.has_key?(:font)
@@ -854,14 +898,26 @@ module GR
 
         when :line
           mask = GR.uselinespec(spec)
-          linewidth = kvs[:linewidth]
-          # Slightly different from Julia,
-          # Because the implementation of polyline and polymarker is different.
-          z ||= linewidth # FIXME
-          GR.polyline(x, y, z, c) if hasline(mask)
-          GR.polymarker(x, y, z, c) if hasmarker(mask)
+          if c
+            linewidth = kvs[:linewidth] || 1
+            z = Array.new(x.length, linewidth)
+            GR.polyline(x, y, z, c)
+          else
+            if hasline(mask)
+              linewidth = kvs[:linewidth] || 1
+              GR.setlinewidth(linewidth)
+              GR.polyline(x, y)
+            end
+            if hasmarker(mask)
+              markersize = kvs[:markersize] || 1
+              GR.setmarkersize(markersize)
+              borderwidth = kvs[:borderwidth] || 1
+              GR.setborderwidth(borderwidth)
+              GR.polymarker(x, y)
+            end
+          end
 
-        when :step
+        when :step, :stairs
           mask = GR.uselinespec(spec)
           if hasline(mask)
             where = kvs[:where] || 'mid'
@@ -895,43 +951,48 @@ module GR
 
         when :scatter
           GR.setmarkertype(GR::MARKERTYPE_SOLID_CIRCLE)
-          z = z&.map { |i| i * 0.01 }
-          c = c&.map { |i| normalize_color(i, *kvs[:crange]) }
-          GR.polymarker(x, y, z, c)
+          if z || c
+            if c
+              cmin, cmax = kvs[:crange]
+              c = c.map { |i| normalize_color(i, cmin, cmax) }
+              c = c.map { |i| (1000 + i * 255).round }
+            end
+            GR.polymarker(x, y, z, c)
+          else
+            GR.polymarker(x, y)
+          end
 
         when :stem
-          GR.setlinecolorind(1)
-          GR.polyline(kvs[:window][0..1], [0, 0])
           GR.setmarkertype(GR::MARKERTYPE_SOLID_CIRCLE)
           GR.uselinespec(spec)
           x = x.to_a if narray?(x)
           y = y.to_a if narray?(y)
           x.zip(y).each do |xi, yi|
             GR.polyline([xi, xi], [0, yi])
+            GR.polymarker([xi], [yi])
           end
-          GR.polymarker(x, y)
+          GR.setlinecolorind(1)
+          GR.polyline(kvs[:window][0..1], [0, 0])
+
+        when :bar
+          (0...x.length).step(2) do |i|
+            GR.setfillcolorind(989)
+            GR.setfillintstyle(GR::INTSTYLE_SOLID)
+            GR.fillrect(x[i], x[i + 1], y[i], y[i + 1])
+            GR.setfillcolorind(1)
+            GR.setfillintstyle(GR::INTSTYLE_HOLLOW)
+            GR.fillrect(x[i], x[i + 1], y[i], y[i + 1])
+          end
 
         when :hist
-          if kvs[:horizontal]
-            xmin = kvs[:window][0]
-            x.length.times do |i|
-              GR.setfillcolorind(989)
-              GR.setfillintstyle(GR::INTSTYLE_SOLID)
-              GR.fillrect(xmin, x[i], y[i], y[i + 1])
-              GR.setfillcolorind(1)
-              GR.setfillintstyle(GR::INTSTYLE_HOLLOW)
-              GR.fillrect(xmin, x[i], y[i], y[i + 1])
-            end
-          else
-            ymin = kvs[:window][2]
-            y.length.times do |i|
-              GR.setfillcolorind(989)
-              GR.setfillintstyle(GR::INTSTYLE_SOLID)
-              GR.fillrect(x[i], x[i + 1], ymin, y[i])
-              GR.setfillcolorind(1)
-              GR.setfillintstyle(GR::INTSTYLE_HOLLOW)
-              GR.fillrect(x[i], x[i + 1], ymin, y[i])
-            end
+          ymin = kvs[:window][2]
+          y.length.times do |i|
+            GR.setfillcolorind(989)
+            GR.setfillintstyle(GR::INTSTYLE_SOLID)
+            GR.fillrect(x[i], x[i + 1], ymin, y[i])
+            GR.setfillcolorind(1)
+            GR.setfillintstyle(GR::INTSTYLE_HOLLOW)
+            GR.fillrect(x[i], x[i + 1], ymin, y[i])
           end
 
         when :polarhist
@@ -1485,6 +1546,11 @@ module GR
       create_plot(:step, *args)
     end
 
+    # (Plot) Draw one or more step or staircase plots.
+    def stairs(*args)
+      create_plot(:stairs, *args)
+    end
+
     # (Plot) Draw one or more scatter plots.
     def scatter(*args)
       create_plot(:scatter, *args)
@@ -1616,11 +1682,22 @@ module GR
     end
 
     # (Plot) Draw a bar plot.
-    def barplot(labels, heights, kv = {})
+    def barplot(*args)
+      kv = args.last.is_a?(Hash) ? args.pop : {}
+      if args.length == 2
+        labels, heights = args
+      elsif args.length == 1
+        heights = args[0]
+        labels = (1..heights.length).map(&:to_s)
+      else
+        raise ArgumentError
+      end
+
       labels = labels.map(&:to_s)
-      wc, hc = barcoordinates(heights)
+      wc, hc = barcoordinates(heights, kv)
+      horizontal = kv.delete(:horizontal)
       create_plot(:bar, labels, heights, kv) do |plt|
-        if kv[:horizontal]
+        if horizontal
           plt.args = [[hc, wc, nil, nil, '']]
           plt.kvs[:yticks] = [1, 1]
           plt.kvs[:yticklabels] = labels
@@ -1634,10 +1711,11 @@ module GR
 
     # (Plot) Draw a histogram.
     def histogram(series, kv = {})
+      horizontal = kv.delete(:horizontal)
       create_plot(:hist, series, kv) do |plt|
         nbins = plt.kvs[:nbins] || 0
         x, y = hist(series, nbins)
-        plt.args = if kv[:horizontal]
+        plt.args = if horizontal
                      [[y, x, nil, nil, '']]
                    else
                      [[x, y, nil, nil, '']]
@@ -1751,13 +1829,15 @@ module GR
       [x, y]
     end
 
-    def barcoordinates(heights, barwidth = 0.8, baseline = 0.0)
+    def barcoordinates(heights, kv = {})
+      barwidth = kv[:barwidth] || 0.8
+      baseline = kv[:baseline] || 0.0
       halfw = barwidth / 2.0
       wc = []
       hc = []
       heights.each_with_index do |value, i|
-        wc << i - halfw
-        wc << i + halfw
+        wc << (i + 1) - halfw
+        wc << (i + 1) + halfw
         hc << baseline
         hc << value
       end
