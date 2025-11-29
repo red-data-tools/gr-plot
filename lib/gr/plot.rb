@@ -886,6 +886,7 @@ module GR
             GR.setfillintstyle(GR::INTSTYLE_HOLLOW)
             GR.fillarc(-ρ[i], ρ[i], -ρ[i], ρ[i], θ[i - 1], θ[i])
           end
+          draw_polar_axes(2)
 
         when :polarheatmap, :nonuniformpolarheatmap
           w, h = z.shape
@@ -905,7 +906,8 @@ module GR
             θ = x.map { |i| i * 180 / Math::PI }
             GR.nonuniformpolarcellarray(θ, ρ, w, h, colors)
           end
-          draw_polar_axes
+          draw_polar_axes(1)
+          draw_polar_axes(2)
           kvs[:zrange] = [cmin, cmax]
           colorbar
 
@@ -1048,6 +1050,7 @@ module GR
         when :polar
           GR.uselinespec(spec)
           plot_polar(x, y)
+          draw_polar_axes(2)
 
         when :trisurf
           GR.trisurface(x, y, z)
