@@ -67,23 +67,28 @@ module GR
       backgroundcolor
       barwidth
       baseline
+      borderwidth
       clabels
+      clines
       clear
       clim
       color
       colormap
       crange
+      dpi
       figsize
       font
       grid
       horizontal
       isovalue
+      keepaspect
       kind
       label
       labels
       levels
       linewidth
       location
+      markersize
       nbins
       ratio
       rotation
@@ -91,6 +96,8 @@ module GR
       size
       spec
       subplot
+      theta_direction
+      theta_zero_location
       tilt
       title
       update
@@ -155,7 +162,8 @@ module GR
       zapfchancery_mediumitalic: 130,
       zapfdingbats: 131,
       cmuserif_math: 232, # original: cmuserif-math
-      dejavusans: 233
+      dejavusans: 233,
+      stix_two_math: 234
     }.freeze
 
     THETA_ZERO_LOCATION = {
@@ -199,32 +207,38 @@ module GR
 
     def set_viewport(kind, subplot)
       mwidth, mheight, width, height = GR.inqdspsize
-      dpi = width / mwidth * 0.0254
-      w, h = if kvs[:figsize]
-               [(0.0254 * width  * kvs[:figsize][0] / mwidth),
-                (0.0254 * height * kvs[:figsize][1] / mheight)]
-             elsif dpi > 200
-               kvs[:size].map { |i| i * dpi / 100 }
-             else
-               kvs[:size]
-             end
+      if kvs.has_key?(:figsize)
+        w, h = kvs[:figsize]
+        if w < 2 && h < 2
+          w = width * w / mwidth
+          h = height * h / mheight
+        end
+      else
+        dpi = kvs[:dpi]
+        dpi ||= (width / mwidth * 0.0254).round
+        if dpi > 200
+          w, h = kvs[:size].map { |i| i * dpi / 100.0 }
+        else
+          w, h = kvs[:size]
+        end
+      end
 
-      vp = subplot.clone
+      vp = subplot.clone.map(&:to_f)
 
       if w > h
-        ratio = h / w.to_f
-        msize = mwidth * w / width
-        GR.setwsviewport(0, msize, 0, msize * ratio)
-        GR.setwswindow(0, 1, 0, ratio)
-        vp[2] *= ratio
-        vp[3] *= ratio
-      else
         ratio = w / h.to_f
+        msize = mwidth * w / width
+        GR.setwsviewport(0, msize, 0, msize / ratio)
+        GR.setwswindow(0, 1, 0, 1 / ratio)
+        vp[2] /= ratio
+        vp[3] /= ratio
+      else
+        ratio = h / w.to_f
         msize = mheight * h / height
-        GR.setwsviewport(0, msize * ratio, 0, msize)
-        GR.setwswindow(0, ratio, 0, 1)
-        vp[0] *= ratio
-        vp[1] *= ratio
+        GR.setwsviewport(0, msize / ratio, 0, msize)
+        GR.setwswindow(0, 1 / ratio, 0, 1)
+        vp[0] /= ratio
+        vp[1] /= ratio
       end
 
       if %i[wireframe surface plot3 scatter3 trisurf volume].include?(kind)
@@ -238,7 +252,7 @@ module GR
       end
 
       left_margin = kvs.has_key?(:ylabel) ? 0.05 : 0
-      right_margin = if %i[contour contourf hexbin heatmap nonuniformheatmap polarheatmap
+      right_margin = if %i[contour contourf tricont hexbin heatmap nonuniformheatmap polarheatmap
                            nonuniformpolarheatmap surface trisurf volume].include?(kind)
                        (vp2 - vp1) * 0.1
                      else
@@ -255,9 +269,24 @@ module GR
       if %i[line step scatter stem].include?(kind) && kvs[:labels]
         location = kvs[:location] || 1
         if [11, 12, 13].include?(location)
-          w, h = legend_size
-          viewport[1] -= w + 0.1
+          w_legend, _h_legend = legend_size
+          viewport[1] -= w_legend + 0.1
         end
+      end
+
+      if %i[polar polarhist polarheatmap nonuniformpolarheatmap].include?(kind)
+        xmin, xmax, ymin, ymax = viewport
+        xcenter = 0.5 * (xmin + xmax)
+        ycenter = 0.5 * (ymin + ymax)
+        r = 0.45 * [xmax - xmin, ymax - ymin].min
+        if kvs.has_key?(:title)
+          r *= 0.975
+          ycenter -= 0.025 * r
+        end
+        viewport[0] = xcenter - r
+        viewport[1] = xcenter + r
+        viewport[2] = ycenter - r
+        viewport[3] = ycenter + r
       end
 
       GR.setviewport(*viewport)
@@ -266,29 +295,21 @@ module GR
       kvs[:vp]       = vp
       kvs[:ratio]    = ratio
 
-      if kvs[:backgroundcolor]
-        GR.savestate
-        GR.selntran(0)
-        GR.setfillintstyle(GR::INTSTYLE_SOLID)
-        GR.setfillcolorind(kvs[:backgroundcolor])
-        if w > h
-          GR.fillrect(subplot[0], subplot[1],
-                      ratio * subplot[2], ratio * subplot[3])
-        else
-          GR.fillrect(ratio * subplot[0], ratio * subplot[1],
-                      subplot[2], subplot[3])
-        end
-        GR.selntran(1)
-        GR.restorestate
+      return unless kvs[:backgroundcolor]
+
+      GR.savestate
+      GR.selntran(0)
+      GR.setfillintstyle(GR::INTSTYLE_SOLID)
+      GR.setfillcolorind(kvs[:backgroundcolor])
+      if w > h
+        GR.fillrect(subplot[0], subplot[1],
+                    ratio * subplot[2], ratio * subplot[3])
+      else
+        GR.fillrect(ratio * subplot[0], ratio * subplot[1],
+                    subplot[2], subplot[3])
       end
-
-      return unless %i[polar polarhist polarheatmap nonuniformpolarheatmap].include? kind
-
-      xmin, xmax, ymin, ymax = viewport
-      xcenter = 0.5 * (xmin + xmax)
-      ycenter = 0.5 * (ymin + ymax)
-      r = 0.5 * [xmax - xmin, ymax - ymin].min
-      GR.setviewport(xcenter - r, xcenter + r, ycenter - r, ycenter + r)
+      GR.selntran(1)
+      GR.restorestate
     end
 
     def set_window(kind)
@@ -323,14 +344,13 @@ module GR
       kvs[:zticks] = [kvs[:zticks], major_count] if kvs[:zticks].is_a? Numeric
 
       xmin, xmax = kvs[:xrange]
-      if %i[heatmap polarheatmap].include?(kind) && kvs.has_key?(:xlim)
+      if kind == :heatmap && !kvs.has_key?(:xlim)
         xmin -= 0.5
         xmax += 0.5
       end
       xtick, majorx = if (scale & GR::OPTION_X_LOG) == 0
-                        if !%i[heatmap polarheatmap].include?(kind) &&
-                           !kvs.has_key?(:xlim) &&
-                           !kvs[:panzoom]
+                        if !kvs.has_key?(:xlim) && !kvs[:panzoom] &&
+                           !%i[heatmap polarheatmap nonuniformpolarheatmap].include?(kind)
                           xmin, xmax = GR.adjustlimits(xmin, xmax)
                         end
                         if kvs.has_key?(:xticks)
@@ -345,21 +365,16 @@ module GR
       kvs[:xaxis] = xtick, xorg, majorx
 
       ymin, ymax = kvs[:yrange]
-      if %i[heatmap polarheatmap].include?(kind) && kvs.has_key?(:ylim)
+      if kind == :heatmap && !kvs.has_key?(:ylim)
         ymin -= 0.5
         ymax += 0.5
       end
-      if kind == :hist
-        if kvs[:horizontal] && !kvs.has_key?(:xlim)
-          xmin = (scale & GR::OPTION_X_LOG) == 0 ? 0 : 1
-        elsif !kvs.has_key?(:ylim)
-          ymin = (scale & GR::OPTION_Y_LOG) == 0 ? 0 : 1
-        end
+      if kind == :hist && !kvs.has_key?(:ylim)
+        ymin = (scale & GR::OPTION_Y_LOG) == 0 ? 0 : 1
       end
       ytick, majory = if (scale & GR::OPTION_Y_LOG) == 0
-                        if !%i[heatmap polarheatmap].include?(kind) &&
-                           !kvs.has_key?(:ylim) &&
-                           !kvs[:panzoom]
+                        if !kvs.has_key?(:ylim) && !kvs[:panzoom] &&
+                           !%i[heatmap polarheatmap nonuniformpolarheatmap].include?(kind)
                           ymin, ymax = GR.adjustlimits(ymin, ymax)
                         end
                         if kvs.has_key?(:yticks)
@@ -376,7 +391,7 @@ module GR
       if %i[wireframe surface plot3 scatter3 trisurf volume].include?(kind)
         zmin, zmax = kvs[:zrange]
         ztick, majorz = if (scale & GR::OPTION_Z_LOG) == 0
-                          zmin, zmax = GR.adjustlimits(zmin, zmax) if kvs.has_key?(:zlim)
+                          zmin, zmax = GR.adjustlimits(zmin, zmax) unless kvs.has_key?(:zlim)
                           if kvs.has_key?(:zticks)
                             kvs[:zticks]
                           else
@@ -390,10 +405,12 @@ module GR
       end
 
       kvs[:window] = xmin, xmax, ymin, ymax
-      if %i[polar polarhist polarheatmap nonuniformpolarheatmap trisurf].include?(kind)
+      if %i[polar polarhist polarheatmap nonuniformpolarheatmap].include?(kind)
         GR.setwindow(-1, 1, -1, 1)
+        GR.setclipregion(GR::REGION_ELLIPSE)
       else
         GR.setwindow(xmin, xmax, ymin, ymax)
+        GR.setclipregion(GR::REGION_RECTANGLE)
       end
       if %i[wireframe surface plot3 scatter3 trisurf volume].include?(kind)
         rotation = kvs[:rotation] || 40
@@ -409,7 +426,6 @@ module GR
     def draw_axes(kind, pass = 1)
       viewport = kvs[:viewport]
       vp = kvs[:vp]
-      _ratio = kvs[:ratio]
       xtick, xorg, majorx = kvs[:xaxis]
       ytick, yorg, majory = kvs[:yaxis]
       drawgrid = kvs.has_key?(:grid) ? kvs[:grid] : true
@@ -423,22 +439,51 @@ module GR
         charheight = [0.024 * diag, 0.012].max
         GR.setcharheight(charheight)
         ztick, zorg, majorz = kvs[:zaxis]
+        rotation = kvs[:rotation] || 40
+        tilt = kvs[:tilt] || 60
+        zi = tilt >= 0 && tilt <= 90 ? 0 : 1 # Julia: 1-based index -> Ruby: 0-based index
+        xlabel = (kvs[:xlabel] || '').to_s
+        ylabel = (kvs[:ylabel] || '').to_s
+        zlabel = (kvs[:zlabel] || '').to_s
+        GR.setcharheight(charheight * 1.5)
+        GR.settitles3d(xlabel, ylabel, zlabel)
+        GR.setcharheight(charheight)
         if pass == 1 && drawgrid
-          GR.grid3d(xtick, 0, ztick, xorg[0], yorg[1], zorg[0], 2, 0, 2)
-          GR.grid3d(0, ytick, 0, xorg[0], yorg[1], zorg[0], 0, 2, 0)
+          if rotation >= 0 && rotation < 90
+            GR.grid3d(xtick, 0, ztick, xorg[0], yorg[1], zorg[zi], 2, 0, 2)
+            GR.grid3d(0, ytick, 0, xorg[0], yorg[1], zorg[zi], 0, 2, 0)
+          elsif rotation >= 90 && rotation < 180
+            GR.grid3d(xtick, 0, ztick, xorg[1], yorg[1], zorg[zi], 2, 0, 2)
+            GR.grid3d(0, ytick, 0, xorg[1], yorg[1], zorg[zi], 0, 2, 0)
+          elsif rotation >= 180 && rotation < 270
+            GR.grid3d(xtick, 0, ztick, xorg[1], yorg[0], zorg[zi], 2, 0, 2)
+            GR.grid3d(0, ytick, 0, xorg[1], yorg[0], zorg[zi], 0, 2, 0)
+          else
+            GR.grid3d(xtick, 0, ztick, xorg[0], yorg[0], zorg[0], 2, 0, 2)
+            GR.grid3d(0, ytick, 0, xorg[0], yorg[0], zorg[zi], 0, 2, 0)
+          end
+        elsif rotation >= 0 && rotation < 90
+          GR.axes3d(xtick, 0, ztick, xorg[0], yorg[0], zorg[zi], majorx, 0, majorz, -ticksize)
+          GR.axes3d(0, ytick, 0, xorg[1], yorg[0], zorg[zi], 0, majory, 0, ticksize)
+        elsif rotation >= 90 && rotation < 180
+          GR.axes3d(0, 0, ztick, xorg[0], yorg[1], zorg[zi], 0, 0, majorz, -ticksize)
+          GR.axes3d(xtick, ytick, 0, xorg[0], yorg[0], zorg[zi], majorx, majory, 0, -ticksize)
+        elsif rotation >= 180 && rotation < 270
+          GR.axes3d(xtick, 0, ztick, xorg[1], yorg[1], zorg[zi], majorx, 0, majorz, ticksize)
+          GR.axes3d(0, ytick, 0, xorg[0], yorg[0], zorg[zi], 0, majory, 0, -ticksize)
         else
-          GR.axes3d(xtick, 0, ztick, xorg[0], yorg[0], zorg[0], majorx, 0, majorz, -ticksize)
-          GR.axes3d(0, ytick, 0, xorg[1], yorg[0], zorg[0], 0, majory, 0, ticksize)
+          GR.axes3d(0, 0, ztick, xorg[1], yorg[0], zorg[zi], 0, 0, majorz, -ticksize)
+          GR.axes3d(xtick, ytick, 0, xorg[1], yorg[1], zorg[zi], majorx, majory, 0, ticksize)
         end
       else
         charheight = [0.018 * diag, 0.012].max
         GR.setcharheight(charheight)
-        if %i[heatmap nonuniformheatmap shade].include?(kind)
+        if %i[heatmap nonuniformheatmap shade contourf].include?(kind)
           ticksize = -ticksize
-        elsif drawgrid
-          GR.grid(xtick, ytick, 0, 0, majorx, majory)
+          drawgrid = false if kind == :shade
         end
         if kvs.has_key?(:xticklabels) || kvs.has_key?(:yticklabels)
+          GR.grid(xtick, ytick, 0, 0, majorx, majory) if drawgrid
           fx = if kvs.has_key?(:xticklabels)
                  GRCommons::Fiddley::Function.new(
                    :void, %i[double double string double]
@@ -469,9 +514,12 @@ module GR
                end
           GR.axeslbl(xtick, ytick, xorg[0], yorg[0], majorx, majory, ticksize, fx, fy)
         else
-          GR.axes(xtick, ytick, xorg[0], yorg[0], majorx, majory, ticksize)
+          x_axis = GR.axis('X', tick: xtick, org: xorg[0], major_count: majorx, tick_size: ticksize)
+          y_axis = GR.axis('Y', tick: ytick, org: yorg[0], major_count: majory, tick_size: ticksize)
+          options = GR::AXES_SIMPLE_AXES | GR::AXES_TWIN_AXES
+          options |= GR::AXES_WITH_GRID if drawgrid
+          GR.drawaxes(x_axis, y_axis, options)
         end
-        GR.axes(xtick, ytick, xorg[1], yorg[1], -majorx, -majory, -ticksize)
       end
 
       if kvs.has_key?(:title)
@@ -480,26 +528,21 @@ module GR
         text(0.5 * (viewport[0] + viewport[1]), vp[3], kvs[:title].to_s)
         GR.restorestate
       end
-      if %i[wireframe surface plot3 scatter3 trisurf volume].include?(kind)
-        xlabel = (kvs[:xlabel] || '').to_s
-        ylabel = (kvs[:ylabel] || '').to_s
-        zlabel = (kvs[:zlabel] || '').to_s
-        GR.titles3d(xlabel, ylabel, zlabel)
-      else
-        if kvs.has_key?(:xlabel)
-          GR.savestate
-          GR.settextalign(GR::TEXT_HALIGN_CENTER, GR::TEXT_VALIGN_BOTTOM)
-          text(0.5 * (viewport[0] + viewport[1]), vp[2] + 0.5 * charheight, kvs[:xlabel].to_s)
-          GR.restorestate
-        end
-        if kvs.has_key?(:ylabel)
-          GR.savestate
-          GR.settextalign(GR::TEXT_HALIGN_CENTER, GR::TEXT_VALIGN_TOP)
-          GR.setcharup(-1, 0)
-          text(vp[0] + 0.5 * charheight, 0.5 * (viewport[2] + viewport[3]), kvs[:ylabel].to_s)
-          GR.restorestate
-        end
+      return if %i[wireframe surface plot3 scatter3 trisurf volume].include?(kind)
+
+      if kvs.has_key?(:xlabel)
+        GR.savestate
+        GR.settextalign(GR::TEXT_HALIGN_CENTER, GR::TEXT_VALIGN_BOTTOM)
+        text(0.5 * (viewport[0] + viewport[1]), vp[2] + 0.5 * charheight, kvs[:xlabel].to_s)
+        GR.restorestate
       end
+      return unless kvs.has_key?(:ylabel)
+
+      GR.savestate
+      GR.settextalign(GR::TEXT_HALIGN_CENTER, GR::TEXT_VALIGN_TOP)
+      GR.setcharup(-1, 0)
+      text(vp[0] + 0.5 * charheight, 0.5 * (viewport[2] + viewport[3]), kvs[:ylabel].to_s)
+      GR.restorestate
     end
 
     def draw_polar_axes(pass = 1)
@@ -571,9 +614,8 @@ module GR
 
           GR.settextalign(GR::TEXT_HALIGN_LEFT, GR::TEXT_VALIGN_HALF)
           x, y = GR.wctondc(0.05, r)
-          # fmt = GR.getformat(start, rmin, rmax, tick, 2)
-          # s = GR.ftoa(j * tick, fmt)
-          s = (j * tick).to_s # Fallback
+          fmt = GR.getformat(start, rmin, rmax, tick, 2)
+          s = GR.ftoa(j * tick, fmt)
           GR.text(x, y, s)
         end
       end
@@ -583,14 +625,17 @@ module GR
 
     def plot_polar(θ, ρ)
       window = kvs[:window]
-      rmax = window[3].to_f
-      ρ = ρ.map { |i| i / rmax }
+      rmin = window[2]
+      rmax = window[3]
+      sign = (kvs[:theta_direction] || 1) > 0 ? 1 : -1
+      offs = THETA_ZERO_LOCATION[kvs[:theta_zero_location] || 'E']
+      ρ = ρ.map { |i| (i - rmin) / (rmax - rmin) }
       n = ρ.length
       x = []
       y = []
       n.times do |i|
-        x << ρ[i] * Math.cos(θ[i])
-        y << ρ[i] * Math.sin(θ[i])
+        x << ρ[i] * Math.cos(θ[i] * sign + offs)
+        y << ρ[i] * Math.sin(θ[i] * sign + offs)
       end
       GR.polyline(x, y)
     end
@@ -603,10 +648,21 @@ module GR
       if img.is_a? String
         width, height, data = GR.readimage(img)
       else
-        height, width = img.shape
+        if narray?(img)
+          height, width = img.shape
+          data = img
+        else
+          height = img.length
+          width = img[0].length
+          data = img.flatten
+        end
         cmin, cmax = kvs[:crange]
-        data = img.map { |i| normalize_color(i, cmin, cmax) }
-        data = data.map { |i| (1000 + i * 255).round }
+        if narray?(data)
+          data = (data - cmin) / (cmax - cmin)
+          data = (data * 255 + 1000).round.cast_to(Numo::Int32)
+        else
+          data = data.map { |i| (1000 + normalize_color(i, cmin, cmax) * 255).round }
+        end
       end
 
       if width * (viewport[3] - viewport[2]) < height * (viewport[1] - viewport[0])
@@ -625,12 +681,12 @@ module GR
 
       GR.selntran(0)
       GR.setscale(0)
-      if kvs.has_key?(:xflip)
+      if kvs[:xflip]
         tmp = xmax
         xmax = xmin
         xmin = tmp
       end
-      if kvs.has_key?(:yflip)
+      if kvs[:yflip]
         tmp = ymax
         ymax = ymin
         ymin = tmp
@@ -676,8 +732,9 @@ module GR
       nx, ny, nz = v.shape
       isovalue = ((kvs[:isovalue] || 0.5) - v.min) / (v.max - v.min)
       rotation = ((kvs[:rotation] || 40) * Math::PI / 180.0)
-      tilt = ((kvs[:tilt] || 70) * Math::PI / 180.0)
+      tilt = ((kvs[:tilt] || 60) * Math::PI / 180.0)
       r = 2.5
+      require 'gr3'
       GR3.clear
       mesh = GR3.createisosurfacemesh(values, [2.0 / (nx - 1), 2.0 / (ny - 1), 2.0 / (nz - 1)],
                                       [-1, -1, -1],
@@ -708,9 +765,10 @@ module GR
       GR.setscale(options & mask)
       h = 0.5 * (zmax - zmin) / (colors - 1)
       GR.setwindow(0, 1, zmin, zmax)
+      GR.setclipregion(GR::REGION_RECTANGLE)
       GR.setviewport(viewport[1] + 0.02 + off, viewport[1] + 0.05 + off,
                      viewport[2], viewport[3])
-      l = linspace(1000, 1255, colors).map(&:round)
+      l = linspace(0, 1, colors).map { |i| (1000 + i * 255).round }
       GR.cellarray(0, 1, zmax + h, zmin - h, 1, colors, l)
       GR.setlinecolorind(1)
       diag = Math.sqrt((viewport[1] - viewport[0])**2 + (viewport[3] - viewport[2])**2)
@@ -718,10 +776,12 @@ module GR
       GR.setcharheight(charheight)
       if kvs[:scale] & GR::OPTION_Z_LOG == 0
         ztick = auto_tick(zmin, zmax)
-        GR.axes(0, ztick, 1, zmin, 0, 1, 0.005)
+        y_axis = GR.axis('Y', position: 1, tick: ztick, org: zmin, major_count: 1, tick_size: 0.005)
+        GR.drawaxis('Y', y_axis)
       else
         GR.setscale(GR::OPTION_Y_LOG)
-        GR.axes(0, 2, 1, zmin, 0, 1, 0.005)
+        y_axis = GR.axis('Y', position: 1, tick: 2, org: zmin, major_count: 1, tick_size: 0.005)
+        GR.drawaxis('Y', y_axis)
       end
       GR.restorestate
     end
@@ -942,7 +1002,12 @@ module GR
           when :contour
             GR._contour_(x, y, h, z, clabels ? 1 : 1000)
           when :contourf
-            GR._contourf_(x, y, h, z, clabels ? 1 : 0)
+            clines = kvs.has_key?(:clines) ? kvs[:clines] : true
+            GR._contourf_(x, y, h, z, if clines
+                                        clabels ? 1 : 0
+                                      else
+                                        -1
+                                      end)
           end
           colorbar(0, h.length)
 
@@ -1274,6 +1339,18 @@ module GR
       [a, b]
     end
 
+    def extrema(a)
+      amin = Float::INFINITY
+      amax = -Float::INFINITY
+      a.each do |el|
+        next if el.nil? || (el.is_a?(Float) && el.nan?)
+
+        amin = el if el < amin
+        amax = el if el > amax
+      end
+      [amin, amax]
+    end
+
     def minmax(kind)
       xmin = ymin = zmin = cmin = Float::INFINITY
       xmax = ymax = zmax = cmax = -Float::INFINITY
@@ -1284,10 +1361,10 @@ module GR
             # duck typing for NArray
             x = x.map { |v| v > 0 ? v : Float::NAN }
           end
-          x0, x1 = x.minmax
+          x0, x1 = extrema(x)
           xmin = [x0, xmin].min
           xmax = [x1, xmax].max
-        elsif kind == :volume
+        elsif %i[volume isosurface].include?(kind)
           xmin = -1
           xmax = 1
         else
@@ -1298,10 +1375,10 @@ module GR
           if scale & GR::OPTION_Y_LOG != 0
             y = y.map { |v| v > 0 ? v : Float::NAN }
           end
-          y0, y1 = y.minmax
+          y0, y1 = extrema(y)
           ymin = [y0, ymin].min
           ymax = [y1, ymax].max
-        elsif kind == :volume
+        elsif %i[volume isosurface].include?(kind)
           ymin = -1
           ymax = 1
         else
@@ -1312,18 +1389,24 @@ module GR
           if scale & GR::OPTION_Z_LOG != 0
             z = z.map { |v| v > 0 ? v : Float::NAN }
           end
-          z0, z1 = z.minmax
+          z0, z1 = extrema(z)
           zmin = [z0, zmin].min
           zmax = [z1, zmax].max
+        elsif %i[volume isosurface].include?(kind)
+          zmin = -1
+          zmax = 1
+        else
+          zmin = 0
+          zmax = 1
         end
         if c
-          c0, c1 = c.minmax
+          c0, c1 = extrema(c)
           cmin = [c0, cmin].min
           cmax = [c1, cmax].max
         elsif z
-          z0, z1 = z.minmax
-          cmin = [z0, zmin].min
-          cmax = [z1, zmax].max
+          c0, c1 = extrema(z)
+          cmin = [c0, cmin].min
+          cmax = [c1, cmax].max
         end
       end
       xmin, xmax = fix_minmax(xmin, xmax)
@@ -1354,10 +1437,15 @@ module GR
     def auto_tick(amin, amax)
       scale = 10.0**Math.log10(amax - amin).truncate
       tick_size = [5.0, 2.0, 1.0, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01]
-      i = tick_size.find_index do |tsize|
-        ((amax - amin) / scale / tsize) > 7 # maximum number of tick marks
+      tick = 1.0
+      tick_size.each_with_index do |tsize, i|
+        n = ((amax - amin) / scale / tsize).truncate
+        if n > 7
+          tick = tick_size[i - 1]
+          break
+        end
       end
-      tick_size[i - 1] * scale
+      tick * scale
     end
 
     def legend_size
