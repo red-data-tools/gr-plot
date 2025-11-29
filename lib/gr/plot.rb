@@ -909,7 +909,7 @@ module GR
           draw_polar_axes(1)
           draw_polar_axes(2)
           kvs[:zrange] = [cmin, cmax]
-          colorbar
+          colorbar(0.025)
 
         when :contour, :contourf
           zmin, zmax = kvs[:zrange]
@@ -1061,6 +1061,7 @@ module GR
           zmin, zmax = kvs[:zrange]
           levels = linspace(zmin, zmax, 20)
           GR.tricontour(x, y, z, levels)
+          colorbar
 
         when :shade
           xform = kvs[:xform] || 5
