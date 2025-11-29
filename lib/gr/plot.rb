@@ -158,6 +158,13 @@ module GR
       dejavusans: 233
     }.freeze
 
+    THETA_ZERO_LOCATION = {
+      'E' => 0,
+      'N' => Math::PI / 2,
+      'W' => Math::PI,
+      'S' => 1.5 * Math::PI
+    }.freeze
+
     @last_plot = nil
     class << self
       attr_accessor :last_plot
