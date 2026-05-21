@@ -508,7 +508,12 @@ module GR
                  GRCommons::Fiddley::Function.new(
                    :void, %i[double double string double]
                  ) do |x, y, _svalue, value|
-                   label = value < 0 ? '' : kvs[:xticklabels][value] || ''
+                   idx = value.round - 1
+                   label = if idx >= 0 && idx < kvs[:xticklabels].size
+                             kvs[:xticklabels][idx]
+                           else
+                             ''
+                           end
                    GR.textext(x, y, label)
                  end
                else
@@ -522,7 +527,12 @@ module GR
                  GRCommons::Fiddley::Function.new(
                    :void, %i[double double string double]
                  ) do |x, y, _svalue, value|
-                   label = value < 0 ? '' : kvs[:yticklabels][value] || ''
+                   idx = value.round - 1
+                   label = if idx >= 0 && idx < kvs[:yticklabels].size
+                             kvs[:yticklabels][idx]
+                           else
+                             ''
+                           end
                    GR.textext(x, y, label)
                  end
                else
