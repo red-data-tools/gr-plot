@@ -1093,7 +1093,7 @@ module GR
         when :heatmap, :nonuniformheatmap
           case z
           when Array
-            raise unless z.all? { |zi| zi.size = z[0].size }
+            raise unless z.all? { |zi| zi.size == z[0].size }
 
             w = z.size
             h = z[0].size
