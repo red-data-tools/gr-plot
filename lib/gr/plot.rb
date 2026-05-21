@@ -6,6 +6,7 @@ autoload :GR3, 'gr3'
 # FIXME: Plot should not depend on Numo::Narrray unless the GR3 module is required.
 # Note: The Plot class has a linspace function that is independent of Numo..
 require 'numo/narray'
+require_relative 'plot/histogram'
 
 module GR
   # This class offers a simple, matlab-style API built on top of the GR package.
@@ -1858,17 +1859,7 @@ module GR
     end
 
     def hist(x, nbins = 0)
-      nbins = (3.3 * Math.log10(x.length)).round + 1 if nbins <= 1
-      begin
-        require 'histogram/array'
-      rescue LoadError => e
-        e.message << " Please add gem 'histogram' to your project's Gemfile."
-        raise e
-      end
-      x = x.to_a if narray?(x)
-      x, y = x.histogram(nbins, bin_boundary: :min)
-      x.push(x[-1] + x[1] - x[0])
-      [x, y]
+      GR::Plot::Histogram.hist(x, nbins)
     end
 
     def barcoordinates(heights, kv = {})
