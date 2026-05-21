@@ -1750,18 +1750,18 @@ module GR
         raise ArgumentError
       end
 
-      labels = labels.map(&:to_s)
       wc, hc = barcoordinates(heights, kv)
       horizontal = kv.delete(:horizontal)
-      create_plot(:bar, labels, heights, kv) do |plt|
+
+      create_plot(:bar, kv) do |plt|
         if horizontal
           plt.args = [[hc, wc, nil, nil, '']]
           plt.kvs[:yticks] = [1, 1]
-          plt.kvs[:yticklabels] = labels
+          plt.kvs[:yticklabels] = labels.map(&:to_s)
         else
           plt.args = [[wc, hc, nil, nil, '']]
           plt.kvs[:xticks] = [1, 1]
-          plt.kvs[:xticklabels] = labels
+          plt.kvs[:xticklabels] = labels.map(&:to_s)
         end
       end
     end
