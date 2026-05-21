@@ -1,6 +1,7 @@
 # GR::Plot
 
-[![Gem Version](https://badge.fury.io/rb/ruby-gr.svg)](https://badge.fury.io/rb/ruby-gr)
+[![Gem Version](https://badge.fury.io/rb/gr-plot.svg)](https://badge.fury.io/rb/gr-plot)
+[![Lines of Code](https://img.shields.io/endpoint?url=https%3A%2F%2Ftokei.kojix2.net%2Fbadge%2Fgithub%2Fred-data-tools%2Fgr-plot%2Flines)](https://tokei.kojix2.net/github/red-data-tools/gr-plot)
 
 A simple, matlab-style API for [GR.rb](https://github.com/red-data-tools/GR.rb)
 
