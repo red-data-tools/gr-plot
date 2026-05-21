@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'gr'
+require_relative 'plot/version'
 autoload :GR3, 'gr3'
 
 # FIXME: Plot should not depend on Numo::Narrray unless the GR3 module is required.

@@ -11,4 +11,8 @@ class PlotTest < Test::Unit::TestCase
   def test_minmax
     assert_equal [Float::INFINITY, -Float::INFINITY], @plot.send(:minmax, :line)
   end
+
+  def test_version_is_loaded_by_plot_require
+    assert_match(/\A\d+\.\d+\.\d+\z/, GR::Plot::VERSION)
+  end
 end
