@@ -1210,16 +1210,6 @@ module GR
           else
             GR.shadepoints(x, y, xform: xform)
           end
-
-        when :bar
-          0.step(x.length - 1, 2) do |i|
-            GR.setfillcolorind(989)
-            GR.setfillintstyle(GR::INTSTYLE_SOLID)
-            GR.fillrect(x[i], x[i + 1], y[i], y[i + 1])
-            GR.setfillcolorind(1)
-            GR.setfillintstyle(GR::INTSTYLE_HOLLOW)
-            GR.fillrect(x[i], x[i + 1], y[i], y[i + 1])
-          end
         end
 
         GR.restorestate
