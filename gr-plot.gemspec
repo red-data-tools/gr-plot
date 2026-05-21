@@ -16,7 +16,7 @@ Gem::Specification.new do |spec|
   spec.files         = Dir['*.{md,txt}', '{lib}/**/*']
   spec.require_paths = ['lib']
 
-  spec.required_ruby_version = '>= 2.5'
+  spec.required_ruby_version = '>= 2.7'
 
   spec.add_dependency 'ruby-gr'
 end
