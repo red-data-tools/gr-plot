@@ -1336,6 +1336,8 @@ module GR
 
     # https://gist.github.com/rysk-t/8d1aef0fb67abde1d259#gistcomment-1925021
     def linspace(low, high, num)
+      return [low] if num == 1
+
       [*0..(num - 1)].collect { |i| low + i.to_f * (high - low) / (num - 1) }
     end
 
@@ -1345,6 +1347,7 @@ module GR
                              i.is_a?(Array) && (i[0].is_a?(Array) || narray?(i[0]))
                            end
       args.map do |xyzc|
+        xyzc = xyzc.dup
         spec = nil
         case xyzc.last
         when String
@@ -1353,17 +1356,25 @@ module GR
           spec = xyzc.pop[:spec]
         end
 
-        x, y, z, c = xyzc.map do |i|
-          if i.is_a?(Array) || narray?(i) || i.nil?
-            i
-          elsif i.respond_to?(:to_a)
-            # Convert an Array-like class such as Daru::Vector to an Array
-            i.to_a
-          else # String
-            i
-          end
+        x, y, z, c = xyzc.map { |i| plot_arg(i) }
+        if xyzc.size == 1 && y.nil?
+          y = x
+          x = linspace(1, y.length, y.length)
+        elsif y.respond_to?(:call)
+          y = x.map { |i| y.call(i) }
         end
         [x, y, z, c, spec]
+      end
+    end
+
+    def plot_arg(arg)
+      if arg.is_a?(Array) || narray?(arg) || arg.nil? || arg.respond_to?(:call)
+        arg
+      elsif arg.respond_to?(:to_a)
+        # Convert an Array-like class such as Daru::Vector to an Array
+        arg.to_a
+      else
+        arg
       end
     end
 
@@ -1769,7 +1780,7 @@ module GR
 
     # (Plot) Draw an image.
     def imshow(img, kv = {})
-      img = Numo::DFloat.cast(img) # Umm...
+      img = Numo::DFloat.cast(img) unless img.is_a?(String)
       create_plot(:imshow, img, kv) do |plt|
         plt.args = [[nil, nil, img, nil, '']]
       end
